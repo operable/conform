@@ -82,7 +82,8 @@ defmodule IntegrationTest do
                    {:'Custom.Enum', :prod},
                    {Some.Module, [val: :foo]},
                    {:another_val, {:on, [data: %{log: :warn}]}},
-                   {:db, [hosts: [{"127.0.0.1", "8001"}]]}, {:some_val, :bar}, {:volume, 1}],
+                   {:db, [hosts: [{"127.0.0.1", "8001"}]]}, {:some_val, :bar}, {:volume, 1},
+                   {:yet_another_val, :unset}],
                  sasl: [errlog_type: :all],
                  some: ["string value": 'stringkeys'],
                  "starting.string": [key: 'stringkeys']]

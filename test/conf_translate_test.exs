@@ -39,6 +39,9 @@ defmodule ConfTranslateTest do
     # Allowed values: active, passive, active-debug
     myapp.another_val = active
 
+
+    myapp.yet_another_val = unset
+
     # Atom module name
     myapp.Elixir.Some.Module.val = foo
 
@@ -105,7 +108,8 @@ defmodule ConfTranslateTest do
         another_val: {:on, [data: %{log: :warn}]},
         db: [hosts: [{"127.0.0.1", "8001"}]],
         some_val: :bar,
-        volume: 1
+        volume: 1,
+        yet_another_val: :unset,
       ],
       sasl:  [errlog_type: :all]
     ]
@@ -143,7 +147,48 @@ defmodule ConfTranslateTest do
         another_val: {:on, [data: %{log: :warn}]},
         db: [hosts: [{"127.0.0.1", "8001"}]],
         some_val: :bar,
-        volume: 1
+        volume: 1,
+        yet_another_val: :unset
+      ],
+      sasl:  [errlog_type: :progress]
+    ]
+    assert config == expect
+  end
+
+  test "can generate config as Elixir terms from existing config, .conf and schema using env vars" do
+    System.put_env("MYAPP_YET_ANOTHER_VAL", "from_env")
+    config = [sasl: [errlog_type: :error], log: [syslog: :off]]
+    path   = Path.join(["test", "schemas", "test.schema.exs"])
+    schema = Conform.Schema.load!(path)
+    conf = """
+    # Restricts the error logging performed by the specified
+    # `sasl_error_logger` to error reports, progress reports, or
+    # both. Default is all. Just testing "nested strings".
+    sasl.log.level = progress
+
+    # Determine the type of thing.
+    # * active: it's going to be active
+    # * passive: it's going to be passive
+    # * active-debug: it's going to be active, with verbose debugging information
+    myapp.another_val = active
+    """
+    {:ok, parsed} = Conform.Conf.from_binary(conf)
+    config = Conform.Translate.to_config(schema, config, parsed)
+    expect = [
+      log: [
+        console_file: "/var/log/console.log",
+        error_file:   "/var/log/error.log",
+        syslog: :on
+      ],
+      logger: [format: "$time $metadata[$level] $levelpad$message\n"],
+      myapp: [
+        {:'Custom.Enum', :dev},
+        {Some.Module, [val: :foo]},
+        another_val: {:on, [data: %{log: :warn}]},
+        db: [hosts: [{"127.0.0.1", "8001"}]],
+        some_val: :bar,
+        volume: 1,
+        yet_another_val: :from_env
       ],
       sasl:  [errlog_type: :progress]
     ]

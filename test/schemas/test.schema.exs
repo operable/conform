@@ -60,6 +60,12 @@
       * active-debug: it's going to be active, with verbose debugging information
       """
     ],
+    "myapp.yet_another_val": [
+      to: "myapp.yet_another_val",
+      env_var: "MYAPP_YET_ANOTHER_VAL",
+      datatype: :atom,
+      default: :unset
+    ],
     "myapp.Elixir.Some.Module.val": [
       datatype: :atom,
       default:  :foo,
