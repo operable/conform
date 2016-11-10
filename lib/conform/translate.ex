@@ -110,7 +110,7 @@ defmodule Conform.Translate do
                 nil ->
                   Conform.Conf.get(table, key)
                 value ->
-                  [{mapping.to, String.to_charlist(value)}]
+                  [{mapping.name, String.to_charlist(value)}]
               end
     case results do
       # No matches
