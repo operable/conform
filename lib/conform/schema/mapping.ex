@@ -11,6 +11,7 @@ defmodule Conform.Schema.Mapping do
   ## Fields
   - `name` is the name of the setting in the .conf, it should be a path as defined above
   - `to` is the name of the setting in the sys.config, it should be a path as defined above
+  - `env_var` is the name of the environment variable which provides the config setting's value
   - `datatype` is the type of the value this setting will be mapped to, see the documentation
   for information on what datatypes are available. User-defined types are also possible.
   - `default` the default value to use if one is not provided in the .conf
@@ -31,6 +32,7 @@ defmodule Conform.Schema.Mapping do
   alias Conform.Schema.Mapping
   defstruct name: "",
             to: nil,
+            env_var: nil,
             datatype: :binary,
             default: nil,
             doc: "",
@@ -51,6 +53,7 @@ defmodule Conform.Schema.Mapping do
   end
 
   defp do_from([{:to, to}|rest], mapping) when is_binary(to),       do: do_from(rest, %{mapping | :to => to})
+  defp do_from([{:env_var, var_name}|rest], mapping) when is_binary(var_name), do: do_from(rest, %{mapping | :env_var => var_name})
   defp do_from([{:datatype, dt}|rest], mapping),                    do: do_from(rest, %{mapping | :datatype => dt})
   defp do_from([{:default, default}|rest], mapping),                do: do_from(rest, %{mapping | :default => default})
   defp do_from([{:doc, doc}|rest], mapping) when is_binary(doc),    do: do_from(rest, %{mapping | :doc => doc})

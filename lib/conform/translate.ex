@@ -104,8 +104,15 @@ defmodule Conform.Translate do
 
   defp convert_types([], _), do: true
   defp convert_types([%Mapping{name: key} = mapping | rest], table) do
-    # Get conf item
-    case Conform.Conf.get(table, key) do
+    # If item has an env var mapping AND the env var is set
+    # use it. Otherwise fetch the value from the ETS table.
+    results = case System.get_env(mapping.env_var || "") do
+                nil ->
+                  Conform.Conf.get(table, key)
+                value ->
+                  [{mapping.to, String.to_charlist(value)}]
+              end
+    case results do
       # No matches
       [] -> convert_types(rest, table)
       # Matches requiring conversion
@@ -114,9 +121,9 @@ defmodule Conform.Translate do
         default  = mapping.default
         for {conf_key, value} <- results, not datatype in [:complex, [list: :complex]] do
           parsed = case value do
-            nil -> default
-            _   -> parse_datatype(datatype, value, mapping)
-          end
+                     nil -> default
+                     _   -> parse_datatype(datatype, value, mapping)
+                   end
           :ets.insert(table, {conf_key, parsed})
         end
         convert_types(rest, table)
