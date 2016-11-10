@@ -2,6 +2,10 @@ defmodule ConfTranslateTest do
   use ExUnit.Case
   import ExUnit.CaptureIO
 
+  setup do
+    on_exit fn -> System.delete_env("MYAPP_YET_ANOTHER_VAL") end
+  end
+
   test "can generate default conf from schema" do
     path   = Path.join(["test", "schemas", "test.schema.exs"])
     schema = path |> Conform.Schema.load!
